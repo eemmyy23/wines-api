@@ -11,5 +11,8 @@
     "url": "git@bitbucket.org:eemmyy23/tresmo-dev.git"
   },
   "author": "",
-  "license": "BSD-2-Clause"
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "restify": "~4.0.4"
+  }
 }
