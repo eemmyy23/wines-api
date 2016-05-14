@@ -16,7 +16,7 @@ server.put('/wines/:id', updateWine);
 server.get('/wines/:id', showWine);
 server.del('/wines/:id', deleteWine);
 
-var wines = [{
+let wines = [{
     id: 1,
     name: 'Pinot noir',
     year: 2011,
@@ -82,6 +82,6 @@ function deleteWine(req, res, next) {
     next();
 }
 
-server.listen(8080, function() {
+server.listen(process.env.PORT || 8080, function() {
     console.log('%s listening at %s', server.name, server.url);
 });
