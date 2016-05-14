@@ -5,6 +5,10 @@ server.use(restify.queryParser());
 server.pre(restify.pre.sanitizePath());
 server.use(restify.bodyParser());
 
+server.pre(function (req, res, next) {
+    console.log(req.method, req.url)
+    next();
+});
 
 server.get('/wines', listWines);
 server.post('/wines', addWine);
