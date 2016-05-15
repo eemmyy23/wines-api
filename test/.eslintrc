@@ -1,0 +1,11 @@
+{
+  "parser": "babel-eslint",
+  "env": {
+    "mocha": true,
+    "node": true
+  },
+  "rules": {
+    "no-var": 0,
+    "func-names": 0
+  }
+}

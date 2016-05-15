@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-let restifya = require('restify');
+let restify = require('restify');
 let server = restify.createServer();
-server.use(restifya.queryParser());
+server.use(restify.queryParser());
 server.pre(restify.pre.sanitizePath());
 server.use(restify.bodyParser());
 
