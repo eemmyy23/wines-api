@@ -1,6 +1,12 @@
 /* eslint-disable no-console */
+require('dotenv').config();
 let restify = require('restify');
 let server = restify.createServer();
+let MongoClient = require('mongodb').MongoClient;
+let assert = require('assert');
+let db;
+let collWines;
+
 server.use(restify.queryParser());
 server.pre(restify.pre.sanitizePath());
 server.use(restify.bodyParser());
@@ -16,25 +22,28 @@ server.put('/wines/:id', updateWine);
 server.get('/wines/:id', showWine);
 server.del('/wines/:id', deleteWine);
 
-let wines = [{
-  id: 1,
-  name: 'Pinot noir',
-  year: 2011,
-  country: 'France',
-  type: 'red',
-  description: 'Sensual and understated',
-}, {
-  id: 2,
-  name: 'Zinfandel',
-  year: 1990,
-  country: 'Croatia',
-  type: 'red',
-  description: 'Thick and jammy',
-}];
+MongoClient.connect(process.env.MONGO_URL)
+  .then(database => {
+    db = database;
+    collWines = db.collection('wines');
+    server.listen(process.env.PORT, () => {
+      console.log('%s listening at %s', server.name, server.url);
+    });
+  })
+  .catch(err => {throw err;} );
 
 function listWines(req, res, next) {
   // let filters = req.query;
-  res.json(wines);
+  collWines.find().toArray()
+    .then(docs=>{
+      res.json(docs);
+    })
+    .catch(err => {
+      res.json({
+        error: 'DB_ERROR',
+        message: err,
+      });
+    });
   next();
 }
 
@@ -46,15 +55,28 @@ function showWine(req, res, next) {
 
 function addWine(req, res, next) {
   if (req.body.type !== 'red') {
-    res.json({
+    return res.json({
       error: 'VALIDATION_ERROR',
       validation: {
         country: 'MISSING',
         year: 'INVALID',
       },
     });
-  } else { res.json({ req: req.body }); }
-  next();
+  }
+
+  collWines.insertOne(req.body)
+      .then(r=>{
+        assert.equal(1, r.insertedCount);
+        res.json(r.ops[0]);
+      })
+      .catch(err => {
+        res.json({
+          error: 'DB_ERROR',
+          message: err,
+        });
+      });
+
+  return next();
 }
 
 function updateWine(req, res, next) {
@@ -81,6 +103,3 @@ function deleteWine(req, res, next) {
   next();
 }
 
-server.listen(process.env.PORT || 8080, () => {
-  console.log('%s listening at %s', server.name, server.url);
-});

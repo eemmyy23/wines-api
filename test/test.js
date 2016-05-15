@@ -1,7 +1,9 @@
-var supertest = require('supertest');
-var server = supertest.agent('http://localhost:8080');
+require('dotenv').config({path: '.env.test'});
+require('dotenv').config();
 require('should');
-
+/* eslint-disable vars-on-top */
+var supertest = require('supertest');
+var server = supertest.agent('http://localhost:' + process.env.PORT);
 
 describe('SAMPLE unit test', function() {
   it('should be running', function(done) {
