@@ -9,8 +9,10 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\"",
-    "lint": "eslint **/*.js || exit 0"
+    "test": "echo \"No test specified\"",
+    "lint": "eslint **/*.js",
+    "precommit": "npm run lint && npm run test",
+    "prepush": "npm run precommit"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
-    "eslint": "^2.10.1"
- }
+    "eslint": "^2.10.1",
+    "husky": "^0.11.4"
+  }
 }
