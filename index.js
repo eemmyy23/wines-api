@@ -6,7 +6,7 @@ server.pre(restify.pre.sanitizePath());
 server.use(restify.bodyParser());
 
 server.pre((req, res, next) => {
-   console.log(req.method, req.url);
+  console.log(req.method, req.url);
   next();
 });
 
