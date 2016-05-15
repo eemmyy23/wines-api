@@ -21,6 +21,7 @@
   "author": "",
   "license": "BSD-2-Clause",
   "dependencies": {
+    "dotenv": "^2.0.0",
     "mongodb": "^2.1.18",
     "restify": "~4.0.4"
   },
