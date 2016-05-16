@@ -1,24 +1,67 @@
 require('dotenv').config({path: '.env.test'});
 require('dotenv').config();
-require('should');
 /* eslint-disable vars-on-top */
-var supertest = require('supertest');
-var server = supertest.agent('http://localhost:' + process.env.PORT);
+var chai = require('chai');
 
-describe('SAMPLE unit test', function() {
-  it('should be running', function(done) {
-    server
-    .get('/wines')
-    .expect('Content-type', /json/)
-    .expect(200) // THis is HTTP response
-    .end(function(err, res) {
-      res.status.should.equal(200);
-      done();
-    });
+/* eslint-disable no-unused-vars */
+var expect = chai.expect;
+var should = chai.should();
+/* eslint-enable no-unused-vars */
+
+chai.use(require('chai-http'));
+
+let MongoClient = require('mongodb').MongoClient;
+var server = chai.request(process.env.TEST_SERVER_URL);
+
+var wines = require('./testData/wines');
+
+describe('DEVELOPER CHALLENGE', () => {
+  describe('API WINES', () => {
+    before('drop wines collection', () =>
+      MongoClient.connect(process.env.MONGO_URL)
+      .then(db =>
+        db.dropCollection('wines')
+        .then( () =>
+          db.collection('wines').insert(wines.initialList)
+          .then( r =>
+            r.insertedCount.should.equal(wines.initialList.length)
+          )
+        )
+      )
+    );
+
+    it('should list all wines on GET /wines', () =>
+      server
+      .get('/wines')
+      .then( res => {
+        res.should.have.status(200);
+        res.body.should.be.an('array');
+        res.body.should.have.lengthOf(wines.initialList.length);
+        // res.body[0].should.have.property('name');
+        // res.body[0].should.have.all.keys(
+        //   ['_id', 'name', 'year', 'country', 'type', 'description']
+        // );
+        res.body.should.deep.equal(wines.initialList);
+      })
+    );
+
+    it('should create new wine on POST /wines', () =>
+      server
+      .post('/wines')
+      .send(wines.post)
+      .then(res => {
+        res.should.have.status(200);
+        res.body.should.be.an('object');
+        res.body.should.deep.equal(wines.post);
+      })
+    );
+
+    it('should return validation error on POST /wines');
+
+    it('should update the wine on PUT /wines/:id');
+    it('should retrive a wine on GET /wines/:id');
+    it('should delete a wine on DELETE /wines/:id');
+
+    // hello
   });
-  it('should list ALL wines on GET /wines');
-  it('should create new wine on POST /wines');
-  it('should update the wine on PUT /wines/:id');
-  it('should retrive a wine on GET /wines/:id');
-  it('should delete a wine on DELETE /wines/:id');
 });
