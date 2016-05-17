@@ -52,11 +52,22 @@ describe('DEVELOPER CHALLENGE', () => {
       .then(res => {
         res.should.have.status(200);
         res.body.should.be.an('object');
+        delete res.body._id;
         res.body.should.deep.equal(wines.post);
       })
     );
 
-    it('should return validation error on POST /wines');
+    it('should return validation error on POST /wines', () =>
+      server
+      .post('/wines')
+      .send(wines.postErr)
+      .catch(err => {
+        err.should.have.status(400);
+        // console.log(err.response.res.body);
+        err.response.res.body.should.be.an('object');
+        err.response.res.body.should.deep.equal(wines.postErrRes);
+      })
+    );
 
     it('should update the wine on PUT /wines/:id');
     it('should retrive a wine on GET /wines/:id');

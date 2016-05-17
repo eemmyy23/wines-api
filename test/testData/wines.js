@@ -15,7 +15,7 @@ const wines = {
     description: 'Thick and jammy',
   }],
   post: {
-    _id: 3,
+    // _id: 3,
     name: 'Cabernet sauvignon',
     year: 2013,
     country: 'France',
@@ -23,13 +23,21 @@ const wines = {
     description: 'The Sean Connery of red wines',
   },
   postErr: {
-    _id: 3,
+    // _id: 3,
     name: 'Cabernet sauvignon',
     year: 'abc',
     // country: 'France',
     type: 'blue',
     description: 'The Sean Connery of red wines',
   },
+  postErrRes: { error: 'VALIDATION_ERROR',
+    validation: {
+      year: 'INVALID',
+      country: 'MISSING',
+      type: 'NOT_VALID_OPTION',
+    },
+  }
+,
 };
 
 module.exports = wines;
