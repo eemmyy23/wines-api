@@ -110,16 +110,16 @@ describe('DEVELOPER CHALLENGE', () => {
         res.body.should.deep.equal(wines.successRes);
       })
     );
+
+    it('should return unknown on DELETE /wines/:id', () =>
+      server
+      .del('/wines/1')
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.res.body.should.be.an('object');
+        err.response.res.body.should.deep.equal(wines.unknownErrRes);
+      })
+    );
+
   });
-
-  it('should return unknown on DELETE /wines/:id', () =>
-    server
-    .del('/wines/1')
-    .catch(err => {
-      err.should.have.status(400);
-      err.response.res.body.should.be.an('object');
-      err.response.res.body.should.deep.equal(wines.unknownErrRes);
-    })
-  );
-
 });
