@@ -1,21 +1,6 @@
 const wines = {
-  initialList: [{
-    _id: 1,
-    name: 'Pinot noir',
-    year: 2011,
-    country: 'France',
-    type: 'red',
-    description: 'Sensual and understated',
-  }, {
-    _id: 2,
-    name: 'Zinfandel',
-    year: 1990,
-    country: 'Croatia',
-    type: 'red',
-    description: 'Thick and jammy',
-  }],
   post: {
-    // _id: 3,
+    id: 1,
     name: 'Cabernet sauvignon',
     year: 2013,
     country: 'France',
@@ -23,10 +8,8 @@ const wines = {
     description: 'The Sean Connery of red wines',
   },
   postErr: {
-    // _id: 3,
     name: 'Cabernet sauvignon',
     year: 'abc',
-    // country: 'France',
     type: 'blue',
     description: 'The Sean Connery of red wines',
   },
@@ -36,8 +19,13 @@ const wines = {
       country: 'MISSING',
       type: 'NOT_VALID_OPTION',
     },
-  }
-,
+  },
+  put: {
+    year: 2016,
+    description: 'Work in progress ...',
+  },
+  unknownErrRes: { error: 'UNKNOWN_OBJECT' },
+  successRes: {success: true},
 };
 
 module.exports = wines;
