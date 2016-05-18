@@ -9,8 +9,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha",
-    "lint": "eslint **/*.js",
+    "test": "./node_modules/mocha/bin/mocha",
+    "lint": "./node_modules/eslint/bin/eslint.js **/*.js",
     "precommit": "npm run lint && npm run test",
     "prepush": "npm run precommit"
   },
