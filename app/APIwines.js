@@ -9,7 +9,6 @@ let collection = req => req.db.collection('wines');
 
 
 let respondError = (errors, res, next) => {
-  console.log(errors);
   for (let key in errors) {
     if (errors.hasOwnProperty(key)) {
       errors[key] = errors[key][0];
@@ -59,6 +58,30 @@ let constraintsInsert = {
   },
 };
 
+let constraintsUpdate = {
+  name: {
+    length: {minimum: 3},
+  },
+  year: {
+    numericality: {
+      noStrings: true,
+      onlyInteger: true,
+      greaterThanOrEqualTo: 350,
+      lessThanOrEqualTo: new Date().getFullYear(),
+    },
+  },
+  country: {
+    length: {minimum: 2},
+  },
+  type: {
+    inclusion: {
+      within: ['red', 'white', 'rose'],
+    },
+  },
+  description: {
+    length: {minimum: 5},
+  },
+};
 
 let constraintsFilters = {
   name: {
@@ -72,6 +95,16 @@ let constraintsFilters = {
   country: {
   },
   type: {
+  },
+};
+
+let constraintsId = {
+  id: {
+    numericality: {
+      noStrings: false,
+      onlyInteger: true,
+      greaterThan: 0,
+    },
   },
 };
 
@@ -99,8 +132,7 @@ APIwines.showAll = (req, res, next) => {
     })
     .catch(err => {
       res.json({
-        error: 'DB_ERROR',
-        message: err,
+        error: err,
       });
     });
 };
@@ -113,10 +145,9 @@ APIwines.insertOne = (req, res, next) => {
 
   let newWine = validate.cleanAttributes(req.body, constraintsInsert);
   return getNextWineId(req.db)
-    .then( r => {
-      newWine.id = r.value.seq;
-      return collection(req).insertOne(newWine);
-    })
+    .then( r =>
+      collection(req).insertOne(Object.assign({}, {id: r.value.seq}, newWine))
+    )
     .then(r=>{
       assert.equal(1, r.insertedCount);
       delete r.ops[0]._id;
@@ -124,14 +155,76 @@ APIwines.insertOne = (req, res, next) => {
     })
     .catch(err => {
       res.json({
-        error: 'DB_ERROR',
-        message: err,
+        error: err,
       });
     });
 };
 
-// APIwines.updateOne = (req, res, next) => {};
-// APIwines.showOne(req, res, next) => {};
-// APIwines.deleteOne(req, res, next) => {};
+APIwines.updateOne = (req, res, next) => {
+  let errors = validate(req.params, constraintsId);
+  if (errors) {
+    return respondError(errors, res, next);
+  }
+
+  errors = validate(req.body, constraintsUpdate);
+  if (errors) {
+    return respondError(errors, res, next);
+  }
+
+  let id = parseInt(req.params.id);
+  let updateWine = validate.cleanAttributes(req.body, constraintsUpdate);
+
+  return collection(req).findOneAndUpdate(
+    { id: id }, // filter
+    { $set: updateWine }, // update
+    { upsert: false, returnOriginal: false} // options
+  )
+  .then(r=>{
+    assert.ok(r.value, 'UNKNOWN_OBJECT');
+    delete r.value._id;
+    res.json(r.value);
+  })
+  .catch(err =>
+    res.json(400, {
+      error: err.message,
+    })
+  );
+};
+
+APIwines.showOne = (req, res, next) => {
+  let errors = validate(req.params, constraintsId);
+  if (errors) {
+    return respondError(errors, res, next);
+  }
+  let id = parseInt(req.params.id);
+  return collection(req).findOne({ id: id }, { _id: 0 })
+    .then(doc=>{
+      assert.ok(doc, 'UNKNOWN_OBJECT');
+      res.json(doc);
+    })
+    .catch(err =>
+      res.json(400, {
+        error: err.message,
+      })
+    );
+};
+
+APIwines.deleteOne = (req, res, next) => {
+  let errors = validate(req.params, constraintsId);
+  if (errors) {
+    return respondError(errors, res, next);
+  }
+  let id = parseInt(req.params.id);
+  return collection(req).deleteOne({ id: id })
+    .then(r=>{
+      assert.equal(1, r.deletedCount, 'UNKNOWN_OBJECT');
+      res.json({success: true});
+    })
+    .catch(err =>
+      res.json(400, {
+        error: err.message,
+      })
+    );
+};
 
 module.exports = APIwines;

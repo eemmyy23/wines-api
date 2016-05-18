@@ -21,7 +21,7 @@ module.exports = (server, db) => {
 
   server.get('/wines', APIwines.showAll);
   server.post('/wines', APIwines.insertOne);
-  // server.put('/wines/:id', APIwines.updateOne);
-  // server.get('/wines/:id', APIwines.showOne);
-  // server.del('/wines/:id', APIwines.deleteOne);
+  server.put('/wines/:id', APIwines.updateOne);
+  server.get('/wines/:id', APIwines.showOne);
+  server.del('/wines/:id', APIwines.deleteOne);
 };
