@@ -1,8 +1,7 @@
 /* eslint-disable func-style */
-
 let assert = require('assert');
 let db = require('./db');
-let WineValidator = require('./Wine');
+let WineValidator = require('./WineValidator');
 const collectionName = 'wines';
 let collection = db.get().collection(collectionName);
 
