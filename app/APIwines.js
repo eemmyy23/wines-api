@@ -1,11 +1,11 @@
 let assert = require('assert');
 let validate = require('validate.js');
-
+let db = require('./db');
 class APIwines {
 
 }
 /* eslint-disable func-style */
-let collection = req => req.db.collection('wines');
+let collection = db.get().collection('wines');
 
 
 let respondError = (errors, res, next) => {
@@ -108,8 +108,8 @@ let constraintsId = {
   },
 };
 
-let getNextWineId = db =>
-  db.collection('counters').findOneAndUpdate(
+let getNextWineId = () =>
+  db.get().collection('counters').findOneAndUpdate(
     { _id: 'wines' }, // filter
     { $inc: { seq: 1 } }, // update
     { upsert: true, returnOriginal: false} // options
@@ -126,7 +126,7 @@ APIwines.showAll = (req, res, next) => {
     filters.year = parseInt(filters.year);
   }
 
-  return collection(req).find(filters, { _id: 0 }).toArray()
+  return collection.find(filters, { _id: 0 }).toArray()
     .then(docs=>{
       res.json(docs);
     })
@@ -144,9 +144,9 @@ APIwines.insertOne = (req, res, next) => {
   }
 
   let newWine = validate.cleanAttributes(req.body, constraintsInsert);
-  return getNextWineId(req.db)
+  return getNextWineId()
     .then( r =>
-      collection(req).insertOne(Object.assign({}, {id: r.value.seq}, newWine))
+      collection.insertOne(Object.assign({}, {id: r.value.seq}, newWine))
     )
     .then(r=>{
       assert.equal(1, r.insertedCount);
@@ -174,7 +174,7 @@ APIwines.updateOne = (req, res, next) => {
   let id = parseInt(req.params.id);
   let updateWine = validate.cleanAttributes(req.body, constraintsUpdate);
 
-  return collection(req).findOneAndUpdate(
+  return collection.findOneAndUpdate(
     { id: id }, // filter
     { $set: updateWine }, // update
     { upsert: false, returnOriginal: false} // options
@@ -197,7 +197,7 @@ APIwines.showOne = (req, res, next) => {
     return respondError(errors, res, next);
   }
   let id = parseInt(req.params.id);
-  return collection(req).findOne({ id: id }, { _id: 0 })
+  return collection.findOne({ id: id }, { _id: 0 })
     .then(doc=>{
       assert.ok(doc, 'UNKNOWN_OBJECT');
       res.json(doc);
@@ -215,7 +215,7 @@ APIwines.deleteOne = (req, res, next) => {
     return respondError(errors, res, next);
   }
   let id = parseInt(req.params.id);
-  return collection(req).deleteOne({ id: id })
+  return collection.deleteOne({ id: id })
     .then(r=>{
       assert.equal(1, r.deletedCount, 'UNKNOWN_OBJECT');
       res.json({success: true});

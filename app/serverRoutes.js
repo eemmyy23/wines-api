@@ -3,16 +3,11 @@ let restify = require('restify');
 
 let APIwines = require('./APIwines');
 
-module.exports = (server, db) => {
+module.exports = (server) => {
   server.use(restify.queryParser());
   server.pre(restify.pre.sanitizePath());
   server.use(restify.bodyParser());
   // server.use(restifyValidator);
-
-  server.use((req, res, next) => {
-    req.db = db;
-    next();
-  });
 
   server.pre((req, res, next) => {
     console.log(req.method, req.url);

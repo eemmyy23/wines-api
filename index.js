@@ -2,14 +2,14 @@
 require('dotenv').config();
 
 let restify = require('restify');
-let server = restify.createServer();
-let MongoClient = require('mongodb').MongoClient;
+let db = require('./app/db');
 
-MongoClient.connect(process.env.MONGO_URL)
-.then(db => {
-  require('./app/serverRoutes.js')(server, db);
+db.connect(process.env.MONGO_URL)
+.then(() => {
+  let server = restify.createServer();
+  require('./app/serverRoutes.js')(server);
   server.listen(process.env.PORT, () => {
     console.log('%s listening at %s', server.name, server.url);
   });
 })
-.catch(err => {throw err;} );
+.catch(e => console.error(e));
