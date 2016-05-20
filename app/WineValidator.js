@@ -10,15 +10,14 @@ class WineValidator {
 
 }
 
-WineValidator.validate = (object, constraints) => {
-  return new Promise((resolv, reject) => {
+WineValidator.validate = (object, constraints) =>
+  new Promise((resolv, reject) => {
     let errors = validate(object, constraints);
     if (errors) {
-      return reject(WineValidator.errorMessage(errors));
+      reject(WineValidator.errorMessage(errors));
     }
-    return resolv(validate.cleanAttributes(object, constraints));
+    resolv(validate.cleanAttributes(object, constraints));
   });
-};
 
 WineValidator.validateFilters = query =>
   WineValidator.validate(query, WineValidator.constraintsFilters())
@@ -102,7 +101,4 @@ WineValidator.constraintsId = {
   },
 };
 
-
 module.exports = WineValidator;
-
-

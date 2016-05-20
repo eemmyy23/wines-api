@@ -4,7 +4,7 @@ let db = null;
 
 exports.connect = url =>
   new Promise((resolve, reject) => {
-    if (db) return resolve(db);
+    if (db) resolve(db);
 
     return MongoClient.connect(url)
     .then(database => {

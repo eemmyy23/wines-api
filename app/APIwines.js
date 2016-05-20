@@ -7,9 +7,9 @@ let collection = db.get().collection(collectionName);
 
 let prepareObjId = (obj) =>
   db.get().collection('counters').findOneAndUpdate(
-    { _id: collectionName }, // filter
-    { $inc: { seq: 1 } }, // update
-    { upsert: true, returnOriginal: false} // options
+    {_id: collectionName}, // filter
+    {$inc: {seq: 1} }, // update
+    {upsert: true, returnOriginal: false} // options
   ).then(r =>
     Object.assign({}, {id: r.value.seq}, obj)
   );
@@ -47,14 +47,13 @@ class APIwines {
 
 }
 
-APIwines.showAll = (req, res, next) => {
+APIwines.showAll = (req, res, next) =>
   WineValidator.validateFilters(req.query)
-  .then(filters => collection.find(filters, { _id: 0 }).toArray())
+  .then(filters => collection.find(filters, {_id: 0}).toArray())
   .then(docs => respond(res, next, docs))
   .catch(error => respond(res, next, error, 400));
-};
 
-APIwines.insertOne = (req, res, next) => {
+APIwines.insertOne = (req, res, next) =>
   WineValidator.validateInsert(req.body)
   .then(validObj => prepareObjId(validObj))
   .then(objWithId => collection.insertOne(objWithId))
@@ -64,14 +63,12 @@ APIwines.insertOne = (req, res, next) => {
     respond(res, next, r.ops[0]);
   })
   .catch(error => respond(res, next, error, 400));
-};
 
-APIwines.updateOne = (req, res, next) => {
-  let id = parseInt(req.params.id);
+APIwines.updateOne = (req, res, next) =>
   WineValidator.validateId(req.params)
   .then(() => WineValidator.validateUpdate(req.body))
   .then(obj => collection.findOneAndUpdate(
-      { id: id }, // filter
+      { id: parseInt(req.params.id) }, // filter
       { $set: obj }, // update
       { upsert: false, returnOriginal: false} // options
   ))
@@ -81,28 +78,25 @@ APIwines.updateOne = (req, res, next) => {
     respond(res, next, r.value);
   })
   .catch(error => respond(res, next, error, 400));
-};
 
-APIwines.showOne = (req, res, next) => {
-  let id = parseInt(req.params.id);
+APIwines.showOne = (req, res, next) =>
   WineValidator.validateId(req.params)
-  .then( () => collection.findOne({ id: id }, { _id: 0 }))
-  .then(doc=>{
+  .then(() => collection
+    .findOne({id: parseInt(req.params.id)}, {_id: 0})
+  )
+  .then(doc => {
     assert.ok(doc, 'UNKNOWN_OBJECT');
     respond(res, next, doc);
   })
   .catch(error => respond(res, next, error, 400));
-};
 
-APIwines.deleteOne = (req, res, next) => {
-  let id = parseInt(req.params.id);
+APIwines.deleteOne = (req, res, next) =>
   WineValidator.validateId(req.params)
-  .then( () => collection.deleteOne({ id: id }))
-  .then(r=>{
+  .then( () => collection.deleteOne({id: parseInt(req.params.id)}))
+  .then(r => {
     assert.equal(1, r.deletedCount, 'UNKNOWN_OBJECT');
     respond(res, next, {success: true});
   })
   .catch(error => respond(res, next, error, 400));
-};
 
 module.exports = APIwines;
