@@ -15,6 +15,8 @@ let prepareObjId = (obj) =>
   );
 
 let respond = (res, next, data, status = 200) => {
+  res.charSet('utf-8');
+
   if (status !== 200) {
     return respondError(res, next, data, status);
   }
