@@ -4,8 +4,30 @@ let db = require('./db');
 let WineValidator = require('./WineValidator');
 const collectionName = 'wines';
 let collection = db.get().collection(collectionName);
+let moment = require('moment');
+let _ = require('underscore');
 
-let prepareObjId = (obj) =>
+let formatWine = (obj) => {
+  if (obj.hasOwnProperty('year')) {
+    obj.year_ts = moment.utc([obj.year]).valueOf();
+    delete obj.year;
+  }
+  return obj;
+};
+
+let displayWine = (obj) => {
+  delete obj._id;
+  if (obj.hasOwnProperty('year_ts')) {
+    obj.year = moment.utc(obj.year_ts).get('year');
+    delete obj.year_ts;
+  }
+  return obj;
+};
+
+let displayWines = (objs) =>
+  _.map(objs, obj => displayWine(obj));
+
+let appendId = (obj) =>
   db.get().collection('counters').findOneAndUpdate(
     {_id: collectionName}, // filter
     {$inc: {seq: 1} }, // update
@@ -51,18 +73,18 @@ class APIwines {
 
 APIwines.showAll = (req, res, next) =>
   WineValidator.validateFilters(req.query)
-  .then(filters => collection.find(filters, {_id: 0}).toArray())
-  .then(docs => respond(res, next, docs))
+  .then(filters => collection.find(formatWine(filters)).toArray())
+  .then(docs => respond(res, next, displayWines(docs)))
   .catch(error => respond(res, next, error, 400));
 
 APIwines.insertOne = (req, res, next) =>
   WineValidator.validateInsert(req.body)
-  .then(validObj => prepareObjId(validObj))
-  .then(objWithId => collection.insertOne(objWithId))
+  .then(validObj => appendId(validObj))
+  .then(objWithId => collection.insertOne(formatWine(objWithId)))
   .then(r => {
     assert.equal(1, r.insertedCount, 'DB_ERROR');
     delete r.ops[0]._id;
-    respond(res, next, r.ops[0]);
+    respond(res, next, displayWine(r.ops[0]));
   })
   .catch(error => respond(res, next, error, 400));
 
@@ -71,24 +93,24 @@ APIwines.updateOne = (req, res, next) =>
   .then(() => WineValidator.validateUpdate(req.body))
   .then(obj => collection.findOneAndUpdate(
       { id: parseInt(req.params.id) }, // filter
-      { $set: obj }, // update
+      { $set: formatWine(obj) }, // update
       { upsert: false, returnOriginal: false} // options
   ))
   .then(r => {
     assert.ok(r.value, 'UNKNOWN_OBJECT');
     delete r.value._id;
-    respond(res, next, r.value);
+    respond(res, next, displayWine(r.value));
   })
   .catch(error => respond(res, next, error, 400));
 
 APIwines.showOne = (req, res, next) =>
   WineValidator.validateId(req.params)
   .then(() => collection
-    .findOne({id: parseInt(req.params.id)}, {_id: 0})
+    .findOne({id: parseInt(req.params.id)})
   )
   .then(doc => {
     assert.ok(doc, 'UNKNOWN_OBJECT');
-    respond(res, next, doc);
+    respond(res, next, displayWine(doc));
   })
   .catch(error => respond(res, next, error, 400));
 
