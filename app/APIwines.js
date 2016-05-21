@@ -10,18 +10,15 @@ let _ = require('underscore');
 let formatWine = (obj) => {
   if (obj.hasOwnProperty('year')) {
     obj.year_ts = moment.utc([obj.year]).valueOf();
-    delete obj.year;
   }
-  return obj;
+  return _.pick(obj, 'id', 'name', 'year_ts', 'country', 'type', 'description');
 };
 
 let displayWine = (obj) => {
-  delete obj._id;
   if (obj.hasOwnProperty('year_ts')) {
     obj.year = moment.utc(obj.year_ts).get('year');
-    delete obj.year_ts;
   }
-  return obj;
+  return _.pick(obj, 'id', 'name', 'year', 'country', 'type', 'description');
 };
 
 let displayWines = (objs) =>
