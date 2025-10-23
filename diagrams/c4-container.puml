@@ -1,0 +1,19 @@
+@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Container diagram for Wines API
+
+Person(user, "API Consumer", "Developers, Applications, or Services")
+
+System_Boundary(api, "Wines API System") {
+    Container(restifyApp, "Restify Application", "Node.js, Restify 4.0.4", "Provides REST API endpoints for wine catalog management. Handles HTTP requests, validation, and response formatting")
+}
+
+ContainerDb(mongodb, "MongoDB Database", "MongoDB 2.1.18", "Stores wine records with auto-incrementing IDs and maintains sequence counters")
+
+Rel(user, restifyApp, "Makes API calls to", "HTTPS/JSON")
+Rel(restifyApp, mongodb, "Reads from and writes to", "MongoDB Protocol")
+
+@enduml
