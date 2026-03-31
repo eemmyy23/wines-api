@@ -1,0 +1,17 @@
+@startuml C4_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title System Context diagram for Wines API
+
+Person(user, "API Consumer", "Developers, Applications, or Services that need wine catalog data")
+
+System(winesApi, "Wines API", "Provides REST API for managing wine catalog information including CRUD operations on wine records")
+
+System_Ext(mongodb, "MongoDB Database", "Stores wine records and ID sequence counters")
+
+Rel(user, winesApi, "Makes API requests", "HTTPS/JSON")
+Rel(winesApi, mongodb, "Reads from and writes to", "MongoDB Protocol")
+
+@enduml

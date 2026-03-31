@@ -1,0 +1,32 @@
+@startuml C4_Component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Component diagram for Wines API Application
+
+Person(user, "API Consumer", "Developers, Applications, or Services")
+
+Container_Boundary(api, "Restify Application") {
+    Component(routes, "Route Handler", "serverRoutes.js", "Configures Restify middleware and maps HTTP endpoints to controller functions")
+
+    Component(controller, "API Controller", "APIwines.js", "Handles CRUD operations: insertOne, showAll, showOne, updateOne, deleteOne. Manages data transformation and error handling")
+
+    Component(validator, "Wine Validator", "WineValidator.js", "Validates wine data against schema constraints for insert, update, and filter operations")
+
+    Component(dbManager, "Database Manager", "db.js", "Singleton MongoDB connection manager. Provides connect() and get() methods")
+
+    Component(formatter, "Data Formatter", "formatWine/displayWine", "Converts year to/from Unix timestamp for storage and display")
+}
+
+ContainerDb(mongodb, "MongoDB Database", "MongoDB 2.1.18", "Collections: wines (wine records), counters (ID sequences)")
+
+Rel(user, routes, "Makes HTTP requests", "HTTPS/JSON")
+Rel(routes, controller, "Delegates to", "Function call")
+Rel(controller, validator, "Validates input with", "Function call")
+Rel(controller, formatter, "Transforms data with", "Function call")
+Rel(controller, dbManager, "Gets DB connection from", "Function call")
+Rel(dbManager, mongodb, "Connects to", "MongoDB Protocol")
+Rel(controller, mongodb, "Reads/Writes", "MongoDB queries")
+
+@enduml
